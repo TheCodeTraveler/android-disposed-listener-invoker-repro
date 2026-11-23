@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net11.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <OutputType>Exe</OutputType>
+    <ApplicationId>com.example.disposedlistener</ApplicationId>
+    <!-- Release builds default to an aab, which adb cannot install -->
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <ReproRuntime Condition="'$(ReproRuntime)' == ''">coreclr</ReproRuntime>
+  </PropertyGroup>
+
+  <!-- .NET 11 Android removed Mono (NETSDK1242), so the Mono contrast is the only build for net10.0 -->
+  <PropertyGroup Condition="'$(ReproRuntime)' == 'mono'">
+    <TargetFramework>net10.0-android</TargetFramework>
+    <UseMonoRuntime>true</UseMonoRuntime>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(ReproRuntime)' == 'coreclr'">
+    <UseMonoRuntime>false</UseMonoRuntime>
+  </PropertyGroup>
+
+  <Target Name="RejectUnknownReproRuntime" BeforeTargets="PrepareForBuild" Condition="'$(ReproRuntime)' != 'coreclr' and '$(ReproRuntime)' != 'mono'">
+    <Error Text="ReproRuntime must be coreclr or mono, not '$(ReproRuntime)'." />
+  </Target>
+</Project>
