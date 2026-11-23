@@ -3,12 +3,16 @@
     "runnable-plain": "stack-overflow",
     "accessibility-plain": "stack-overflow",
     "runnable-ctor": "returned",
-    "accessibility-ctor": "returned"
+    "accessibility-ctor": "returned",
+    "runnable-alive": "returned",
+    "accessibility-alive": "returned"
   },
   "mono": {
     "runnable-plain": "activation-failure",
     "accessibility-plain": "activation-failure",
     "runnable-ctor": "returned",
-    "accessibility-ctor": "returned"
+    "accessibility-ctor": "returned",
+    "runnable-alive": "returned",
+    "accessibility-alive": "returned"
   }
 }

@@ -7,8 +7,17 @@ package=com.example.disposedlistener
 artifacts="artifacts/$runtime/cases"
 mkdir -p "$artifacts"
 
-# A Java stack overflow dump is long and would push the START line out of the 256 KB default buffer
+# The .NET runtime's stack overflow trace (tag DOTNET) is long and would push the START line out of the 256 KB default buffer
 adb logcat -G 16M
+
+# macOS has no GNU timeout; without it the commands run unbounded
+if ! command -v timeout > /dev/null 2>&1; then
+    if command -v gtimeout > /dev/null 2>&1; then
+        timeout() { gtimeout "$@"; }
+    else
+        timeout() { shift; "$@"; }
+    fi
+fi
 
 apk=$(ls src/Repro/bin/Release/*/android-x64/*-Signed.apk | head -1)
 timeout 300 adb install -r "$apk" > "artifacts/$runtime/install.txt" 2>&1 || { sleep 10; timeout 300 adb install -r "$apk" > "artifacts/$runtime/install.txt" 2>&1; } \
@@ -29,7 +38,7 @@ wait_for_end() {
     return 1
 }
 
-for case_name in runnable-plain accessibility-plain runnable-ctor accessibility-ctor; do
+for case_name in runnable-plain accessibility-plain runnable-alive accessibility-alive runnable-ctor accessibility-ctor; do
     folder="$artifacts/$case_name"
     mkdir -p "$folder"
 
@@ -45,3 +54,5 @@ for case_name in runnable-plain accessibility-plain runnable-ctor accessibility-
     adb logcat -d -b crash > "$folder/crash.txt"
     adb shell am force-stop "$package"
 done
+
+echo "emulator API level $(adb shell getprop ro.build.version.sdk | tr -d '\r')" >> "artifacts/$runtime/versions.txt"

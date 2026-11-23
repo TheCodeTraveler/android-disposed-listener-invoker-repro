@@ -13,14 +13,21 @@ fi
 # A stale obj folder from the other runtime would be reused by an incremental build
 rm -rf src/Repro/obj src/Repro/bin
 
-dotnet build src/Repro -c Release -p:ReproRuntime="$runtime" -p:RuntimeIdentifier=android-x64 ${extra_arguments[@]+"${extra_arguments[@]}"} \
+dotnet build src/Repro -c Release -p:ReproRuntime="$runtime" -p:RuntimeIdentifier="${RUNTIME_IDENTIFIER:-android-x64}" ${extra_arguments[@]+"${extra_arguments[@]}"} \
     -bl:"$artifacts/build.binlog" | tee "$artifacts/build.txt"
 if [ "${PIPESTATUS[0]}" -ne 0 ]; then
     echo "::error::Build for $runtime failed."
     exit 1
 fi
 
-apk=$(ls src/Repro/bin/Release/*/android-x64/*-Signed.apk | head -1)
+{
+    echo "dotnet $(dotnet --version)"
+    props=$(ls src/Repro/obj/Release/*/android-x64/build.props 2> /dev/null | head -1)
+    [ -n "$props" ] && grep -i "androidnetsdkversion" "$props" | head -1
+} > "$artifacts/versions.txt"
+cat "$artifacts/versions.txt"
+
+apk=$(ls src/Repro/bin/Release/*/"${RUNTIME_IDENTIFIER:-android-x64}"/*-Signed.apk | head -1)
 listing=$(unzip -l "$apk")
 # An APK with the wrong runtime would make a leg pass or fail for the wrong reason
 case "$runtime" in

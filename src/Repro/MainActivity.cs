@@ -25,6 +25,7 @@ public class MainActivity : Activity
 
     void RunCase(string caseName)
     {
+        Log.CurrentCase = caseName;
         Log.Line("START", caseName, ("runtime", DetectRuntime()), ("dotnet", Environment.Version.ToString()));
 
         try
@@ -52,10 +53,16 @@ public class MainActivity : Activity
     {
         var (listener, methodName, signature, arguments) = CreateListener(caseName);
 
+        // The -alive cases differ from the -plain cases only here: the managed peer is still alive when Java calls
+        var disposeBeforeCall = !caseName.EndsWith("-alive", StringComparison.Ordinal);
+
         var javaCaller = JNIEnv.NewGlobalRef(listener.Handle);
         try
         {
-            listener.Dispose();
+            if (disposeBeforeCall)
+            {
+                listener.Dispose();
+            }
 
             var javaClass = JNIEnv.GetObjectClass(javaCaller);
             try
@@ -71,12 +78,15 @@ public class MainActivity : Activity
         finally
         {
             JNIEnv.DeleteGlobalRef(javaCaller);
+            listener.Dispose();
         }
     }
 
     static (Java.Lang.Object Listener, string MethodName, string Signature, JValue[] Arguments) CreateListener(string caseName) => caseName switch
     {
         "runnable-plain" => (new RunnableListenerWithoutActivationConstructor(), "run", "()V", []),
+        "runnable-alive" => (new RunnableListenerWithoutActivationConstructor(), "run", "()V", []),
+        "accessibility-alive" => (new AccessibilityListenerWithoutActivationConstructor(), "onAccessibilityStateChanged", "(Z)V", [new JValue(true)]),
         "runnable-ctor" => (new RunnableListenerWithActivationConstructor(), "run", "()V", []),
         "accessibility-plain" => (new AccessibilityListenerWithoutActivationConstructor(), "onAccessibilityStateChanged", "(Z)V", [new JValue(true)]),
         "accessibility-ctor" => (new AccessibilityListenerWithActivationConstructor(), "onAccessibilityStateChanged", "(Z)V", [new JValue(true)]),
