@@ -12,7 +12,7 @@ One command, on Linux or on macOS with coreutils (`gtimeout`):
 bash ci/build.sh coreclr && bash ci/run-cases.sh coreclr && python3 -I ci/assert-results.py --runtime coreclr --expected ci/expected.json --results artifacts/coreclr
 ```
 
-By hand:
+By hand (on an arm64 device use android-arm64 in both the build command and the APK path):
 
 ```
 dotnet build src/Repro -c Release -p:ReproRuntime=coreclr -p:RuntimeIdentifier=android-x64

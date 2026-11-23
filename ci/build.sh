@@ -22,7 +22,7 @@ fi
 
 {
     echo "dotnet $(dotnet --version)"
-    props=$(ls src/Repro/obj/Release/*/android-x64/build.props 2> /dev/null | head -1)
+    props=$(ls src/Repro/obj/Release/*/"${RUNTIME_IDENTIFIER:-android-x64}"/build.props 2> /dev/null | head -1)
     [ -n "$props" ] && grep -i "androidnetsdkversion" "$props" | head -1
 } > "$artifacts/versions.txt"
 cat "$artifacts/versions.txt"

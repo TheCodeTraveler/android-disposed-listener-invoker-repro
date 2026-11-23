@@ -19,7 +19,7 @@ if ! command -v timeout > /dev/null 2>&1; then
     fi
 fi
 
-apk=$(ls src/Repro/bin/Release/*/android-x64/*-Signed.apk | head -1)
+apk=$(ls src/Repro/bin/Release/*/"${RUNTIME_IDENTIFIER:-android-x64}"/*-Signed.apk | head -1)
 timeout 300 adb install -r "$apk" > "artifacts/$runtime/install.txt" 2>&1 || { sleep 10; timeout 300 adb install -r "$apk" > "artifacts/$runtime/install.txt" 2>&1; } \
     || { echo "Install failed"; cat "artifacts/$runtime/install.txt"; exit 1; }
 
