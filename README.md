@@ -56,7 +56,7 @@ The run is green when every leg matches its expectation. The workflow does not c
 
 CI: https://github.com/TheCodeTraveler/android-disposed-listener-invoker-repro/actions/runs/45931351037 (green = every case matched its expected result)
 
-Upstream issue: (to be filed)
+Upstream issue: https://github.com/dotnet/android/issues/13807
 
 ## Root cause and recommended fix
 
