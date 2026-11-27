@@ -39,7 +39,7 @@ Cases:
 
 | Runtime | Case | Observed | Expected |
 |---|---|---|---|
-| CoreCLR (.NET 11) | `*-plain` | `Stack overflow.`, looping `I...Invoker.<Method>` and `__n_<Method>` frames, no `RESULT` line | `NotSupportedException` naming the listener type |
+| CoreCLR (.NET 11) | `*-plain` | `Stack overflow.` and a `Repeated N times:` block (N about 600-700) of `I...Invoker.<Method>` -> `__n_<Method>` frames, no `RESULT` line | `NotSupportedException` naming the listener type |
 | Mono (.NET 10) | `*-plain` | `NotSupportedException: Unable to activate instance of type ...` | same |
 | both | `*-alive`, `*-ctor` | `RESULT ... outcome=returned` after a `CALLBACK` line | same |
 
@@ -47,7 +47,7 @@ Cases:
 
 [`.github/workflows/repro.yml`](.github/workflows/repro.yml) builds one APK per runtime and launches each case on API 34 and API 36 x86_64 emulators, on workload set 11.0.100.1 (overridable with the `workload-set` dispatch input). The job summary starts with a verdict line and the versions used. `ci/assert-results.py` compares the logcat with `ci/expected.json` and writes a table to the job summary.
 
-- **coreclr bug legs** (`*-plain`): green only when the app's own process (pid from its START line) logs `E DOTNET: Stack overflow.`, at least 10 frames each of the case's Invoker method and its `__n_` method, no `RESULT` and no `DONE` line.
+- **coreclr bug legs** (`*-plain`): green only when the app's own process (pid from its START line) logs `E DOTNET: Stack overflow.`, at least 10 frames each of the case's Invoker method and its `__n_` method (a frame inside a `Repeated N times:` block counts N times), no `RESULT` and no `DONE` line.
 - **coreclr control and workaround legs** (`*-alive`, `*-ctor`): green only when the `CALLBACK` and `RESULT outcome=returned` lines appear.
 - **mono legs**: the .NET 11 SDK rejects Mono for Android (NETSDK1242), so these build `net10.0-android`. `*-plain` must report the `Unable to activate instance` exception naming the listener type, `*-alive` and `*-ctor` must return.
 - Every case must print its `START` line with the expected runtime, so a case that never ran fails.
