@@ -38,7 +38,8 @@ wait_for_end() {
     return 1
 }
 
-for case_name in runnable-plain accessibility-plain runnable-alive accessibility-alive runnable-ctor accessibility-ctor; do
+case_names=$(python3 -I -c "import json,sys; print(*json.load(open('ci/expected.json'))[sys.argv[1]])" "$runtime")
+for case_name in $case_names; do
     folder="$artifacts/$case_name"
     mkdir -p "$folder"
 

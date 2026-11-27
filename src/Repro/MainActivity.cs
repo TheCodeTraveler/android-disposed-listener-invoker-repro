@@ -26,7 +26,7 @@ public class MainActivity : Activity
     void RunCase(string caseName)
     {
         Log.CurrentCase = caseName;
-        Log.Line("START", caseName, ("runtime", DetectRuntime()), ("dotnet", Environment.Version.ToString()));
+        Log.Line("START", caseName, ("runtime", DetectRuntime()), ("dotnet", System.Environment.Version.ToString()));
 
         try
         {
@@ -86,9 +86,9 @@ public class MainActivity : Activity
     {
         "runnable-plain" => (new RunnableListenerWithoutActivationConstructor(), "run", "()V", []),
         "runnable-alive" => (new RunnableListenerWithoutActivationConstructor(), "run", "()V", []),
-        "accessibility-alive" => (new AccessibilityListenerWithoutActivationConstructor(), "onAccessibilityStateChanged", "(Z)V", [new JValue(true)]),
         "runnable-ctor" => (new RunnableListenerWithActivationConstructor(), "run", "()V", []),
         "accessibility-plain" => (new AccessibilityListenerWithoutActivationConstructor(), "onAccessibilityStateChanged", "(Z)V", [new JValue(true)]),
+        "accessibility-alive" => (new AccessibilityListenerWithoutActivationConstructor(), "onAccessibilityStateChanged", "(Z)V", [new JValue(true)]),
         "accessibility-ctor" => (new AccessibilityListenerWithActivationConstructor(), "onAccessibilityStateChanged", "(Z)V", [new JValue(true)]),
         _ => throw new ArgumentOutOfRangeException(nameof(caseName), caseName, "Unknown case"),
     };

@@ -5,10 +5,6 @@ on:
         branches: [main]
     workflow_dispatch:
         inputs:
-            api-level:
-                description: Android API level of the emulator
-                type: number
-                default: 34
             workload-set:
                 description: .NET workload set version to install (11.0.100.1 has Microsoft.NET.Sdk.Android 37.2.31)
                 type: string
@@ -24,18 +20,18 @@ concurrency:
 env:
     DOTNET_NOLOGO: 'true'
     DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
-    API_LEVEL: ${{ inputs.api-level || '34' }}
     WORKLOAD_SET: ${{ inputs.workload-set || '11.0.100.1' }}
 
 jobs:
     repro:
-        name: ${{ matrix.runtime }}
+        name: ${{ matrix.runtime }} api${{ matrix.api-level }}
         runs-on: ubuntu-24.04
         timeout-minutes: 60
         strategy:
             fail-fast: false
             matrix:
                 runtime: [coreclr, mono]
+                api-level: [34, 36]
         steps:
             -   name: Setup checkout
                 uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,7 +58,7 @@ jobs:
                     mkdir -p "artifacts/${{ matrix.runtime }}"
                     {
                         echo "dotnet: $(dotnet --version)"
-                        echo "emulator API level: ${API_LEVEL}"
+                        echo "emulator API level: ${{ matrix.api-level }}"
                         echo "workload set: ${WORKLOAD_SET}"
                         dotnet workload list
                     } | tee "artifacts/${{ matrix.runtime }}/environment.txt"
@@ -85,7 +81,7 @@ jobs:
                 timeout-minutes: 30
                 uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
                 with:
-                    api-level: ${{ env.API_LEVEL }}
+                    api-level: ${{ matrix.api-level }}
                     target: google_apis
                     arch: x86_64
                     profile: pixel_7_pro
@@ -106,6 +102,6 @@ jobs:
                 if: always()
                 uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
                 with:
-                    name: results-${{ matrix.runtime }}
+                    name: results-${{ matrix.runtime }}-api${{ matrix.api-level }}
                     path: artifacts/${{ matrix.runtime }}
                     if-no-files-found: warn

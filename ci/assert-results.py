@@ -74,7 +74,7 @@ def observe(case, folder):
 
     stack_overflow = any(level == "E" and tag == "DOTNET" and message.startswith("Stack overflow.") for level, tag, message in app_lines)
     invoker_frames = sum(1 for _, tag, message in app_lines if tag == "DOTNET" and INVOKER_METHOD[kind] in message)
-    native_frames = sum(1 for _, tag, message in app_lines if tag == "DOTNET" and f"Invoker.__n_" in message and INVOKER_METHOD[kind].split(".")[0] in message)
+    native_frames = sum(1 for _, tag, message in app_lines if tag == "DOTNET" and "Invoker.__n_" in message and INVOKER_METHOD[kind].split(".")[0] in message)
     details.update({"stackOverflowFromAppPid": stack_overflow, "invokerFrames": invoker_frames, "nativeInvokerFrames": native_frames})
 
     if result is None:
@@ -96,9 +96,14 @@ def observe(case, folder):
 
 rows = []
 failed = False
+if not os.path.isdir(f"{arguments.results}/cases"):
+    print("build or emulator step produced no results: no cases/ folder")
 for case, want in expected.items():
     folder = f"{arguments.results}/cases/{case}"
-    got, problems, details = observe(case, folder)
+    if not os.path.isdir(folder):
+        got, problems, details = "did-not-run", ["build or emulator step produced no results"], {}
+    else:
+        got, problems, details = observe(case, folder)
     match = got == want and not problems
     failed |= not match
     rows.append({"case": case, "expected": want, "observed": got, "match": match, "problems": problems, **details})

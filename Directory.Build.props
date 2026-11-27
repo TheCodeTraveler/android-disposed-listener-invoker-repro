@@ -12,7 +12,7 @@
     <ReproRuntime Condition="'$(ReproRuntime)' == ''">coreclr</ReproRuntime>
   </PropertyGroup>
 
-  <!-- .NET 11 Android removed Mono (NETSDK1242), so the Mono contrast is the only build for net10.0 -->
+  <!-- the .NET 11 SDK rejects Mono for Android (NETSDK1242), so the Mono contrast builds for net10.0 -->
   <PropertyGroup Condition="'$(ReproRuntime)' == 'mono'">
     <TargetFramework>net10.0-android</TargetFramework>
     <UseMonoRuntime>true</UseMonoRuntime>
